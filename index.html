@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f6f8fb" />
+<title>六级词汇 · 四遍记忆法</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand" id="brand">
+      <span class="logo">六</span>
+      <div>
+        <div class="brand-t">六级词汇</div>
+        <div class="brand-s">四遍记忆法 · 每天 10~20 词</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn ghost" id="nav-search">🔍 查询</button>
+      <button class="btn ghost" id="nav-wrong">📕 错词本</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= 首页 ================= -->
+    <section class="view" id="view-home">
+      <div class="card hero">
+        <div class="hero-t">今日任务</div>
+        <div class="target">
+          <div class="target-head"><span>每天背</span><b id="target-val">10 词</b></div>
+          <input type="range" id="target-range" min="10" max="20" step="1" value="10" />
+          <div class="target-scale"><span>10</span><span>15</span><span>20</span></div>
+        </div>
+        <button class="btn primary wide" id="btn-start">开始今日学习</button>
+        <div class="hint" id="home-hint">每个单词四遍流程：听音辨义 → 图文例句 → 看词选义 → 拼写</div>
+      </div>
+
+      <div class="card stats">
+        <div class="stat"><b id="st-today">0/10</b><span>今日进度</span></div>
+        <div class="stat"><b id="st-learned">0</b><span>累计学过</span></div>
+        <div class="stat"><b id="st-mastered">0</b><span>已掌握</span></div>
+        <div class="stat"><b id="st-streak">0</b><span>连续天数</span></div>
+      </div>
+
+      <div class="card">
+        <div class="row-title">复习计划（艾宾浩斯）</div>
+        <div class="kv"><span>今日待复习</span><b id="st-due">0 词</b></div>
+        <div class="kv"><span>明日待复习</span><b id="st-due-tmr">0 词</b></div>
+        <div class="kv"><span>已安排复习</span><b id="st-due-all">0 词</b></div>
+        <div class="btn-row"><button class="btn primary" id="btn-due">只复习到期词</button></div>
+        <div class="hint" id="due-hint">复习间隔按 1 → 2 → 4 → 7 → 15 → 30 天递增；到期词会优先进入当天队列，答错则退回上一遍并从 1 天重新开始。</div>
+      </div>
+
+      <div class="card">
+        <div class="row-title">学习曲线 · 近 14 天</div>
+        <div id="chart-box" class="chart"></div>
+        <div class="legend">
+          <span class="lg"><i class="bar"></i>每天学习词数</span>
+          <span class="lg"><i class="line"></i>正确率</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row-title">词库</div>
+        <div class="kv"><span>内置词条</span><b id="kb-builtin">0</b></div>
+        <div class="kv"><span>导入词条</span><b id="kb-user">0</b></div>
+        <div class="hint">想背完整的六级词表？用「导入词表」把 CSV / TXT / JSON 塞进来即可。</div>
+        <div class="btn-row">
+          <button class="btn" id="btn-import">导入词表</button>
+          <button class="btn" id="btn-export">导出词库</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row-title">设置</div>
+        <label class="switch-row"><span>自动发音（进入第一遍即朗读）</span><input type="checkbox" id="opt-audio" checked></label>
+        <label class="switch-row"><span>在线发音（有道音频，需联网）</span><input type="checkbox" id="opt-online"></label>
+        <label class="switch-row"><span>每日顺序随机</span><input type="checkbox" id="opt-shuffle" checked></label>
+        <div class="btn-row">
+          <button class="btn danger" id="btn-reset">清空学习数据</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 学习页 ================= -->
+    <section class="view hidden" id="view-study">
+      <div class="study-head">
+        <button class="btn ghost" id="btn-quit">← 退出</button>
+        <div class="study-meta">
+          <span id="study-count">1 / 10</span>
+          <span class="sep">·</span>
+          <span id="study-stage">第 1 遍</span>
+        </div>
+        <button class="btn ghost" id="btn-audio" title="再听一遍">🔊</button>
+      </div>
+      <div class="bar"><div class="bar-fill" id="study-bar"></div></div>
+      <div id="stage-card"></div>
+    </section>
+
+    <!-- ================= 结算页 ================= -->
+    <section class="view hidden" id="view-result">
+      <div id="result-card"></div>
+    </section>
+
+    <!-- ================= 查询页 ================= -->
+    <section class="view hidden" id="view-search">
+      <div class="card">
+        <input id="search-input" class="input" placeholder="输入英文单词或中文释义，如 abandon / 放弃" autocomplete="off" />
+        <div class="hint">支持模糊匹配，点结果查看音标、例句、形近词与学习记录。</div>
+      </div>
+      <div id="search-results"></div>
+    </section>
+
+    <!-- ================= 错词本 ================= -->
+    <section class="view hidden" id="view-wrong">
+      <div class="card">
+        <div class="row-title">错词本</div>
+        <div class="hint" id="wrong-hint">答错的词会自动记录在这里，答对一次即减少一次错误计数。</div>
+        <div class="btn-row">
+          <button class="btn primary" id="btn-review-wrong">复习错词</button>
+          <button class="btn" id="btn-clear-wrong">清空</button>
+        </div>
+      </div>
+      <div id="wrong-list"></div>
+    </section>
+  </main>
+
+  <footer class="foot">数据保存在本机浏览器（localStorage），可随时导出词库备份。</footer>
+</div>
+
+<div class="modal hidden" id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <b id="modal-title">标题</b>
+      <button class="btn ghost" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="data/words.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

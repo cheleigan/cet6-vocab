@@ -1,0 +1,26 @@
+# 依赖与构建产物
+node_modules/
+dist/
+build/
+
+# 环境变量与凭据（本项目不需要，但一律不入库）
+.env
+.env.*
+*.local
+*.pem
+*.key
+secrets.*
+credentials.*
+
+# 临时文件（工作区约定的临时目录）
+_tmp/
+tmp/
+*.tmp
+*.log
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
